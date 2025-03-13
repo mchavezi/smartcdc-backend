@@ -210,9 +210,9 @@ class WALListenerService:
             if result and result[0]:
                 logger.warning(f"Slot {slot_name} is already in use by PID {result[0]}. Reclaiming...")
                 cur.execute("SELECT pg_terminate_backend(%s);", (result[0],))
-                logger.info(f"💣 Terminated PID {result[0]} using slot {slot_name}.")
+                logger.info(f"ℹ️ Terminated PID {result[0]} using slot {slot_name}.")
 
-            logger.info("🏁 db_id=%s: START_REPLICATION slot=%s publication=%s pid=%s",
+            logger.info("ℹ️ db_id=%s: START_REPLICATION slot=%s publication=%s pid=%s",
                         db_id, slot_name, publication_name, backend_pid)
 
             cur.start_replication(
