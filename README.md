@@ -1,3 +1,9 @@
+# ===================================================
+# NOTICE: This file is part of a private repository.
+# Provided for demonstration purposes only.
+# Not suitable for production use.
+# ===================================================
+
 # smartcdc.ai is a Change Data Capture (CDC) tool.
 Provides APIs for creating customer database connections to recieve WAL Events
 
