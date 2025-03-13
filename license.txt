@@ -1,0 +1,10 @@
+Copyright (C) 2025 Michael Chavez
+
+This repository and its contents are provided for demonstration purposes only. 
+All rights reserved. 
+
+Permission is hereby granted, free of charge, to access and review the code within this repository strictly for evaluation purposes. Redistribution, modification, or use in any production environment is strictly prohibited.
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES OR GUARANTEES OF ANY KIND, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM OR IN CONNECTION WITH THE USE OF THIS SOFTWARE.
+
+For inquiries regarding usage beyond demonstration purposes, please contact [Your Email].
