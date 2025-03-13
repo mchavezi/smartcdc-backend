@@ -11,6 +11,7 @@ Provides APIs for creating customer database connections to recieve WAL Events
 
 1. `git clone git@github.com:smartcdc-ai/backend.git` 
 2. `cd backend`
+4. Go into virtual environment: `python -m venv venv` and then `source venv/bin/activate`. This ensures Python keeps packages isolated and keeps your system secure. 
 3. Ensure `smart_cdc_prod_admin` MySQL DB exists. 
   - `mysql -u root -p` password: root (or whatever you local MySQL dev credentials are)
   - `CREATE DATABASE smart_cdc_prod_admin;`
