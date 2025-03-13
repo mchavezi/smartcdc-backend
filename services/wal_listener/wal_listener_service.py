@@ -189,7 +189,7 @@ class WALListenerService:
 
     @staticmethod
     def _wal_loop(db_id, conn_details, slot_name, publication_name, run_status):
-        logger.info("🙌 WAL loop starting for db_id=%s", db_id)
+        logger.info("ℹ️ WAL loop starting for db_id=%s", db_id)
         connection = None
         current_tx = {}
         try:
@@ -203,7 +203,7 @@ class WALListenerService:
             cur.execute("SELECT pg_backend_pid();")
             backend_pid = cur.fetchone()[0]
 
-            logger.info("🥸 db_id=%s: Backend PID=%s", db_id, backend_pid)
+            logger.info("ℹ️ db_id=%s: Backend PID=%s", db_id, backend_pid)
 
             cur.execute("SELECT active_pid FROM pg_replication_slots WHERE slot_name = %s", (slot_name,))
             result = cur.fetchone()
@@ -224,74 +224,6 @@ class WALListenerService:
             )
 
             relation_cache = {}
-            # def build_wal_event(tx):
-            #     # Use cached relation if not present in current transaction
-            #     relation_msg = tx.get("relation")
-            #     if relation_msg is None:
-            #         # Try to fetch the relation message from the cache using the relation_id from the change message.
-            #         change_msg = tx.get("change")
-            #         if change_msg:
-            #             relation_id = change_msg.get("relation_id")
-            #             relation_msg = relation_cache.get(relation_id)
-            #             if relation_msg is None:
-            #                 logger.error("Missing relation metadata for relation_id %s and no cached value.", relation_id)
-            #                 return None
-            #         else:
-            #             logger.error("No change message to determine relation_id.")
-            #             return None
-
-            #     # Cache the relation info for future transactions.
-            #     if "relation_id" in relation_msg:
-            #         relation_cache[relation_msg["relation_id"]] = relation_msg
-
-            #     # Ensure all parts are available.
-            #     required = ["begin", "change", "commit"]
-            #     for part in required:
-            #         if part not in tx or tx[part] is None:
-            #             logger.error("🧐 Missing required transaction part: %s. Current tx: %s", part, tx)
-            #             return None
-
-            #     commit_msg = tx["commit"]
-            #     change_msg = tx["change"]
-            #     begin_msg = tx["begin"]
-
-            #     commit_lsn_int = lsn_to_int(commit_msg["lsn"])
-            #     seq = commit_lsn_int + begin_msg["xid"]  # simplistic example
-
-            #     # Build record using the (cached) relation info and the change message.
-            #     record = build_record(change_msg, relation_msg)
-
-            #     changes = None
-            #     if change_msg["type"] == "update" and "old_fields" in change_msg:
-            #         changes = build_changes(change_msg["old_fields"], change_msg.get("fields", {}))
-
-            #     # Retrieve schema and table names.
-            #     source_table_schema = (
-            #         relation_msg.get("nspname")
-            #         or relation_msg.get("schema")
-            #         or "public"  # default if none provided
-            #     )
-            #     # For source_table_name, use the 'relation_name' field.
-            #     source_table_name = (
-            #         relation_msg.get("relation_name")
-            #         or relation_msg.get("table")
-            #         or "unknown"  # default if none provided
-            #     )
-
-            #     wal_event = {
-            #         "commit_lsn": commit_lsn_int,
-            #         "seq": seq,
-            #         "record_pks": [str(x) for x in change_msg.get("ids", [])],
-            #         "record": record,
-            #         "changes": changes,
-            #         "action": change_msg["type"],
-            #         "committed_at": commit_msg["commit_timestamp"].isoformat(),
-            #         # New fields for source table details
-            #         "source_table_oid": relation_msg.get("table_oid", relation_msg.get("relation_id")),
-            #         "source_table_schema": source_table_schema,
-            #         "source_table_name": source_table_name
-            #     }
-            #     return wal_event
 
             def decode_record_data(record_hex, relation_msg):
                 """
@@ -357,7 +289,7 @@ class WALListenerService:
                 required = ["begin", "change", "commit"]
                 for part in required:
                     if part not in tx or tx[part] is None:
-                        logger.error("🧐 Missing required transaction part: %s. Current tx: %s", part, tx)
+                        logger.error("Missing required transaction part: %s. Current tx: %s", part, tx)
                         return None
 
                 commit_msg = tx["commit"]
@@ -429,13 +361,13 @@ class WALListenerService:
                 then return that raw hex string. Otherwise, if a decoded tuple
                 is provided, zip it with the column names from the relation message.
                 """
-                logger.debug("🚀 [build_record] Received change_msg: %s", change_msg)
-                logger.debug("🚀 [build_record] Received relation_msg: %s", relation_msg)
+                logger.debug("🐞 [build_record] Received change_msg: %s", change_msg)
+                logger.debug("🐞 [build_record] Received relation_msg: %s", relation_msg)
                 
                 # If a raw tuple exists, use it as the record.
                 tuple_raw = change_msg.get("tuple_raw")
                 if tuple_raw:
-                    logger.info("🔑 [build_record] Using raw tuple value as record: %s", tuple_raw)
+                    logger.info("ℹ️ [build_record] Using raw tuple value as record: %s", tuple_raw)
                     return tuple_raw  # Return the raw hex string without decoding.
                 
                 # Otherwise, try to use a decoded tuple (if present)
@@ -448,9 +380,9 @@ class WALListenerService:
 
                 record = dict(zip(columns, values))
                 if not record:
-                    logger.error("😱 [build_record] Record is empty after zipping columns: %s with values: %s", columns, values)
+                    logger.error("🚨 [build_record] Record is empty after zipping columns: %s with values: %s", columns, values)
                 else:
-                    logger.debug("🤖 [build_record] Constructed record: %s", record)
+                    logger.debug("🐞 [build_record] Constructed record: %s", record)
                 return record
 
 
@@ -470,7 +402,7 @@ class WALListenerService:
                 """
                 Persist the constructed wal_event into the wal_events table.
                 """
-                logger.debug("👷 Constructed wal_event: %s", wal_event)
+                logger.debug("🤖 Constructed wal_event: %s", wal_event)
                 try:
                     # Import your Flask app (update the import according to your project structure)
                     from app import create_app
@@ -514,9 +446,9 @@ class WALListenerService:
                         )
                         db.session.add(new_event)
                         db.session.commit()
-                        logger.info("🎉 Saved WAL event with id: %s", new_event.id)
+                        logger.info("ℹ️ Saved WAL event with id: %s", new_event.id)
                 except Exception as e:
-                    logger.exception("😱 Error saving WAL event: %s", e)
+                    logger.exception("❌ Error saving WAL event: %s", e)
 
 
             def wal_callback(msg):
@@ -525,7 +457,7 @@ class WALListenerService:
                     raise RuntimeError("🪑 WAL loop stopping: run_status set to False.")
                 try:
                     decoded_message = decode_message(msg.payload)
-                    logger.debug("🕵️‍♀️  db_id=%s Decoded WAL msg: %s", db_id, decoded_message)
+                    logger.debug("🐞 db_id=%s Decoded WAL msg: %s", db_id, decoded_message)
                     
                     msg_type = decoded_message.get("type")
                     if msg_type == "begin":
@@ -538,26 +470,26 @@ class WALListenerService:
                         current_tx["commit"] = decoded_message
                         wal_event = build_wal_event(current_tx)
                         if wal_event is not None:
-                            logger.info("🎟️  Constructed wal_event: %s", wal_event)
+                            logger.info("ℹ️  Constructed wal_event: %s", wal_event)
                             process_wal_event(wal_event)
                         else:
-                            logger.error("😤 Could not construct wal_event due to missing parts: %s", current_tx)
+                            logger.error("🚨 Could not construct wal_event due to missing parts: %s", current_tx)
                         current_tx = {}
                 except Exception as e:
-                    logger.error("⚠️ db_id=%s Error decoding WAL message: %s", db_id, e)
+                    logger.error("🚨 db_id=%s Error decoding WAL message: %s", db_id, e)
                 finally:
                     msg.cursor.send_feedback(flush_lsn=msg.data_start)
 
             cur.consume_stream(wal_callback)
 
         except RuntimeError as e:
-            logger.info("✋ db_id=%s: Stopping WAL loop due to: %s", db_id, e)
+            logger.info("ℹ️ db_id=%s: Stopping WAL loop due to: %s", db_id, e)
         except psycopg2.Error as e:
-            logger.error("😫 db_id=%s error in WAL loop: %s. Reconnect in 20s...", db_id, e)
+            logger.error("🚨 db_id=%s error in WAL loop: %s. Reconnect in 20s...", db_id, e)
             time.sleep(20)
         finally:
             if connection:
-                logger.info("🥱 db_id=%s: Closing replication connection.", db_id)
+                logger.info("ℹ️ db_id=%s: Closing replication connection.", db_id)
                 connection.close()
 
     @classmethod
@@ -567,7 +499,7 @@ class WALListenerService:
             logger.info("ℹ️ db_id=%s: WAL Listener already running", db_id)
             return
 
-        logger.info("👂 Starting WAL Listener for new db_id=%s", db_id)
+        logger.info("ℹ️ Starting WAL Listener for new db_id=%s", db_id)
         run_status = {"running": True}
         t = threading.Thread(
             target=cls._wal_loop,
